@@ -122,6 +122,51 @@ def case_row(case: Case) -> dict:
     }
 
 
+def grid_row(row: dict) -> dict:
+    """One queue row as plain data for the AG Grid view."""
+    case = row["case"]
+    due = row["due"]
+    return {
+        "id": case.pk,
+        "href": f"/cases/{case.pk}/",
+        "order_ref": case.order_ref,
+        "dispute_id": case.paypal_dispute_id,
+        "buyer": case.buyer_name,
+        "offline": row["offline"],
+        "reason": row["reason"],
+        "amount": float(case.amount),
+        "currency": case.currency,
+        "due_sort": case.response_due_at.isoformat() if case.response_due_at else "9999",
+        "due_date": due["date"],
+        "due_text": due["text"],
+        "due_urgent": due["urgent"],
+        "state_label": row["state_label"],
+        "state_tone": row["state_tone"],
+    }
+
+
+def ledger_rows(evidence: list[Evidence]) -> list[dict]:
+    """The evidence as a flat table for the ledger view."""
+    rows = []
+    for group in group_evidence(evidence):
+        for entry in group["entries"]:
+            item = entry["item"]
+            rows.append(
+                {
+                    "id": item.pk,
+                    "key_label": f"E{item.pk}",
+                    "key": entry["key"],
+                    "source": item.source_label or "Other",
+                    "kind": item.get_kind_display(),
+                    "claim": item.claim,
+                    "quote": item.quote,
+                    "supports": item.supports,
+                    "supports_label": entry["supports_label"],
+                }
+            )
+    return rows
+
+
 def record_boxes(case: Case) -> list[dict]:
     """The PayPal record as waybill boxes, built only from what PayPal returned."""
     snapshot = case.paypal_snapshot or {}
@@ -269,6 +314,7 @@ def case_context(case: Case) -> dict:
         "investigation": investigation,
         "completed": completed,
         "groups": group_evidence(evidence),
+        "ledger_rows": ledger_rows(evidence),
         "evidence_count": len(evidence),
         "recommendation": recommendation,
         "rec_label": ACTION_LABELS.get(recommendation.action, recommendation.action) if recommendation else "",

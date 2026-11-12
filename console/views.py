@@ -17,7 +17,13 @@ from cases.sync import sync_disputes
 from console.demo import is_offline
 from console.hub import hub
 from console.investigation import run_investigation
-from console.presenters import case_context, case_row, describe_event, group_evidence
+from console.presenters import (
+    case_context,
+    case_row,
+    describe_event,
+    grid_row,
+    group_evidence,
+)
 from console.recommend import generate_recommendation
 from demo_sites.data import WORLD
 from paypal_client import PayPalClient, PayPalError
@@ -30,13 +36,14 @@ _background: set[asyncio.Task] = set()
 INVESTIGABLE = {Case.State.NEW, Case.State.READY, Case.State.NEEDS_INFO, Case.State.FAILED, Case.State.INVESTIGATING}
 
 
-def _queue_rows() -> list[dict]:
+def _queue_context() -> dict:
     cases = Case.objects.order_by(F("response_due_at").asc(nulls_last=True), "-created_at")
-    return [case_row(case) for case in cases]
+    rows = [case_row(case) for case in cases]
+    return {"rows": rows, "grid_rows": [grid_row(row) for row in rows]}
 
 
 def queue(request: HttpRequest) -> HttpResponse:
-    return render(request, "console/queue.html", {"rows": _queue_rows(), "active": "queue"})
+    return render(request, "console/queue.html", _queue_context() | {"active": "queue"})
 
 
 @require_POST
@@ -51,7 +58,7 @@ def case_sync(request: HttpRequest) -> HttpResponse:
     except Exception as error:  # missing keys and network problems should read as a message, not a crash
         logger.warning("Sync failed: %s", error)
         message = "Could not sync. Check PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET in .env, then try again."
-    return render(request, "console/_queue.html", {"rows": _queue_rows(), "message": message})
+    return render(request, "console/_queue.html", _queue_context() | {"message": message})
 
 
 def _render_case(request: HttpRequest, case: Case, **extra) -> HttpResponse:

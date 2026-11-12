@@ -1,7 +1,12 @@
 <div id="queue">
   {% if message %}<p class="notice" role="status" style="margin-bottom:12px">{{ message }}</p>{% endif %}
   {% if rows %}
-  <table class="table table-stack">
+  <div class="grid-tools" id="queue-tools" hidden>
+    <label class="sr-only" for="queue-filter">Filter cases</label>
+    <input id="queue-filter" type="search" class="field-input" placeholder="Filter by order, buyer or reason">
+  </div>
+  <div id="queue-grid" hidden></div>
+  <table class="table table-stack" id="queue-table">
     <thead>
       <tr><th scope="col">Case</th><th scope="col">Reason</th><th scope="col" class="num">Amount</th><th scope="col">Respond by</th><th scope="col">Status</th></tr>
     </thead>
@@ -20,6 +25,7 @@
       {% endfor %}
     </tbody>
   </table>
+  {{ grid_rows|json_script:"queue-data" }}
   {% else %}
   <div class="panel empty">
     <h3>No cases yet</h3>

@@ -1,7 +1,15 @@
-<div class="panel" id="evidence">
+<div class="panel" id="evidence" x-data="{ view: 'cards' }" :data-view="view">
   <div class="panel-head">
     <h2 id="evidence-h">Evidence</h2>
-    {% if evidence_count and not running %}<span class="faint">{{ evidence_count }} facts, each checked against its source</span>{% endif %}
+    {% if groups and not running %}
+    <div class="flex items-center gap-3">
+      <span class="faint">{{ evidence_count }} facts, each checked against its source</span>
+      <div class="view-toggle" role="group" aria-label="Evidence view">
+        <button type="button" data-view-toggle="cards" :aria-pressed="view === 'cards'" @click="view = 'cards'">Cards</button>
+        <button type="button" data-view-toggle="ledger" :aria-pressed="view === 'ledger'" @click="view = 'ledger'; $nextTick(() => window.RefundOpsGrids && RefundOpsGrids.initLedger())">Ledger</button>
+      </div>
+    </div>
+    {% endif %}
   </div>
   <div class="panel-body">
     {% if running %}
@@ -11,8 +19,16 @@
       {% for c in contradictions %}
       <div class="conflict" style="margin-bottom:14px"><strong>Conflict</strong><span>{{ c.note }}</span></div>
       {% endfor %}
-      <div class="copies">
+      <div class="copies" x-show="view === 'cards'">
         {% for group in groups %}{% for entry in group.entries %}{% include "console/_copy.html" %}{% endfor %}{% endfor %}
+      </div>
+      <div x-show="view === 'ledger'" x-cloak>
+        <div class="grid-tools">
+          <label class="sr-only" for="ledger-filter">Filter the evidence</label>
+          <input id="ledger-filter" type="search" class="field-input" placeholder="Filter by source, kind, text or who it supports">
+        </div>
+        <div id="ledger-grid"></div>
+        {{ ledger_rows|json_script:"ledger-data" }}
       </div>
       {% if completed.open_questions %}
       <div style="margin-top:16px">
