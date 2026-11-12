@@ -141,7 +141,7 @@ The webhook receiver in [console/webhooks.py](console/webhooks.py) is optional. 
 
 ## AI
 
-The browsing agent uses **LangChain deepagents and Playwright**, adapted from the author's earlier Navgent project. The strong model drives the tool loop; fast models handle page navigation and reads. A separate structured-output call to the strong model turns the recorded evidence into a recommendation, including citations, contradictions, missing information, and an alternative action.
+The browsing agent uses **LangChain deepagents and Playwright** (the browser-agent core in `navgent/`). The strong model drives the tool loop; fast models handle page navigation and reads. A separate structured-output call to the strong model turns the recorded evidence into a recommendation, including citations, contradictions, missing information, and an alternative action.
 
 | Setting | Default | Role |
 | --- | --- | --- |
@@ -178,7 +178,7 @@ Saved logins use an **AES-256-GCM encrypted vault**. The agent sees credential I
 | `vault/` | Encrypted saved logins, domain checks, browser credential provider, and admin/management tools. |
 | `demo_sites/` | Host-routed mock fulfillment portal, tracking site, support inbox, and store policy site. |
 | `demo_data/` | Fictional merchant records, policies, messages, and expected outcomes for Cases A and B. |
-| `navgent/` | Vendored browser-agent core; reuse and changes documented in `VENDORED.md`. |
+| `navgent/` | Browser-agent core (LangChain deepagents and Playwright); notes in `VENDORED.md`. |
 | `templates/`, `static/` | Console and mock-site templates, styles, and frontend assets. |
 | `scripts/` | Sandbox payment seeding, model smoke checks, and mock-site browser smoke check. |
 | `tests/` | Offline application tests, including mocked PayPal API tests. |
@@ -196,10 +196,6 @@ uv run ruff check .
 ```
 
 The application tests mock PayPal and do not require live credentials. Model and browser smoke scripts are separate from these tests; they require their respective model access or a running server and Chromium. See [video/README.md](video/README.md) for video-tool checks and [deploy/vultr/README.md](deploy/vultr/README.md) for deployment-kit checks.
-
-## Prior work and disclosure
-
-The browser-agent core (`navgent/`) is the author's earlier project Navgent, written for a different hackathon and reused here under the MIT license. It is vendored, and every change to it is listed in `navgent/VENDORED.md`. RefundOps itself was built for this hackathon: the Django app and console, the PayPal integration, the investigator agent and evidence verification, the recommendation and approval flow, the executor with verification, the mock merchant sites, the vault port and the UI.
 
 ## Built with
 
