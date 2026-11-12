@@ -1,0 +1,40 @@
+{
+  "dispute": {
+    "dispute_id": "PP-D-27804", "status": "WAITING_FOR_SELLER_RESPONSE",
+    "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED", "dispute_life_cycle_stage": "INQUIRY",
+    "dispute_amount": {"currency_code": "USD", "value": "90.00"},
+    "seller_response_due_date": "2026-11-27T09:30:00+02:00",
+    "disputed_transactions": [{
+      "seller_transaction_id": "CAP-90", "invoice_number": "ORD-10483",
+      "gross_amount": {"currency_code": "USD", "value": "90.00"},
+      "buyer": {"name": "Alex Chen", "email": "alex@example.com"}
+    }],
+    "messages": [{"posted_by": "BUYER", "content": "Only part of my order arrived."}],
+    "links": [
+      {"rel": "provide-evidence", "method": "POST"},
+      {"rel": "make-offer", "method": "POST"},
+      {"rel": "accept-claim", "method": "POST"},
+      {"rel": "self", "method": "GET"}
+    ]
+  },
+  "capture": {
+    "id": "CAP-90", "status": "PARTIALLY_REFUNDED",
+    "amount": {"currency_code": "USD", "value": "90.00"},
+    "supplementary_data": {"related_ids": {"order_id": "PAYPAL-ORDER-90"}}
+  },
+  "order": {
+    "id": "PAYPAL-ORDER-90",
+    "payer": {"name": {"given_name": "Alex", "surname": "Chen"}, "email_address": "alex@example.com"},
+    "purchase_units": [{
+      "invoice_id": "ORD-10483", "custom_id": "ORD-10483",
+      "shipping": {
+        "name": {"full_name": "Alex Chen"},
+        "address": {"address_line_1": "52 Pine Road", "admin_area_2": "Seattle", "admin_area_1": "WA", "postal_code": "98101", "country_code": "US"}
+      },
+      "payments": {
+        "captures": [{"id": "CAP-90", "status": "PARTIALLY_REFUNDED"}],
+        "refunds": [{"id": "REF-25", "status": "COMPLETED", "amount": {"value": "25.00", "currency_code": "USD"}}]
+      }
+    }]
+  }
+}

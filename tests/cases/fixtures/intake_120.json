@@ -1,0 +1,48 @@
+{
+  "dispute": {
+    "dispute_id": "PP-D-27803",
+    "status": "WAITING_FOR_SELLER_RESPONSE",
+    "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+    "dispute_life_cycle_stage": "INQUIRY",
+    "dispute_amount": {"currency_code": "USD", "value": "120.00"},
+    "seller_response_due_date": "2026-11-26T07:59:59.000Z",
+    "create_time": "2026-11-10T15:00:00Z",
+    "update_time": "2026-11-11T15:00:00Z",
+    "disputed_transactions": [{
+      "buyer_transaction_id": "BUY-120", "seller_transaction_id": "CAP-120",
+      "invoice_number": "ORD-10482", "custom": "ORD-10482",
+      "gross_amount": {"currency_code": "USD", "value": "120.00"},
+      "buyer": {"name": "Sarah Okafor", "email": "sarah@example.com"},
+      "seller": {"name": "Alder Store", "email": "store@example.com", "merchant_id": "MERCHANT-1"}
+    }],
+    "allowed_response_options": {
+      "provide_evidence": {"evidence_types": ["PROOF_OF_FULFILLMENT", "OTHER"]},
+      "make_offer": {"offer_types": ["REFUND"]},
+      "accept_claim": {"accept_claim_types": ["REFUND"]}
+    },
+    "messages": [
+      {"posted_by": "SELLER", "content": "We are checking delivery."},
+      {"posted_by": "BUYER", "time_posted": "2026-11-10T15:00:00Z", "content": "My order has not arrived. Please help."},
+      {"posted_by": "BUYER", "content": "Any updates?"}
+    ],
+    "links": [{"href": "https://api-m.sandbox.paypal.com/v1/customer/disputes/PP-D-27803", "rel": "self", "method": "GET"}]
+  },
+  "capture": {
+    "id": "CAP-120", "status": "COMPLETED",
+    "amount": {"currency_code": "USD", "value": "120.00"},
+    "supplementary_data": {"related_ids": {"order_id": "PAYPAL-ORDER-120"}},
+    "create_time": "2026-11-01T14:00:00Z"
+  },
+  "order": {
+    "id": "PAYPAL-ORDER-120",
+    "payer": {"name": {"given_name": "Sarah", "surname": "Okafor"}, "email_address": "sarah@example.com"},
+    "purchase_units": [{
+      "invoice_id": "ORD-10482", "custom_id": "ORD-10482",
+      "shipping": {
+        "name": {"full_name": "Sarah Okafor"},
+        "address": {"address_line_1": "418 Alder Street", "address_line_2": "Apt 3B", "admin_area_2": "Portland", "admin_area_1": "OR", "postal_code": "97205", "country_code": "US"}
+      },
+      "payments": {"captures": [{"id": "CAP-120", "status": "COMPLETED"}], "refunds": []}
+    }]
+  }
+}
