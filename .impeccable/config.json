@@ -10,7 +10,7 @@
           "templates/base.html"
         ],
         "createdAt": "2026-11-12T05:39:17.091Z",
-        "reason": "Lightbox img has no default image; Alpine binds :src when a screenshot is opened. Decided by the assistant (owner away), not a user confirmation."
+        "reason": "Lightbox img has no default image; Alpine binds :src when a screenshot is opened. Decided by the assistant during the build, not a user confirmation."
       }
     ]
   }

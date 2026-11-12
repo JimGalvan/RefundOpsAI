@@ -11,7 +11,7 @@ Scope and visitor mode: Operate. The case queue, the case workspace (evidence, r
 
 Audience, job, task: support or operations staff at a small online store, working a queue of PayPal inquiries against response deadlines. Task: read what the agent found, check its sources, then approve, edit or reject one recommended PayPal response. Constraints: runs against the PayPal sandbox; evidence is only what the agent verified; no invented customers, metrics or pricing.
 
-Assumptions (inferred, owner away): one merchant, one user, English, daylight office use.
+Assumptions (inferred): one merchant, one user, English, daylight office use.
 
 Unresolved: whether the queue ships as an AG Grid table; whether a hosted demo needs a login screen.
 

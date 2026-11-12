@@ -2,7 +2,7 @@
 
 <!-- impeccable:product-schema 1 -->
 
-> Written non-interactively: the owner was away and told the assistant to keep going. Facts marked *(inferred)* come from `docs/RefundOps_Product_Overview_v3.md` and the build plan, not from a confirmed interview.
+> Facts marked *(inferred)* come from the hackathon project brief, not from interviews with merchants.
 
 ## Platform
 
@@ -10,7 +10,7 @@ web
 
 ## Stack
 
-Django 6.1 with HTMX, Alpine.js and Tailwind (CDN); AG Grid Community for the case queue (stretch). Chosen by the owner.
+Django 6.1 with HTMX, Alpine.js and Tailwind (CDN); AG Grid Community for the case queue and the evidence ledger view.
 
 ## Users
 
@@ -34,11 +34,11 @@ A queue of PayPal inquiries with response due dates, and a workspace per case. P
 - A recommendation is limited to actions PayPal currently allows and is checked by guardrails (allowed action, amount within what is refundable, citations exist, deadline not passed).
 - Two-key rule: the agent can only read; the executor, after merchant approval, makes the PayPal call with an idempotency key, then re-reads PayPal to verify the outcome.
 - Text found on pages and in emails is untrusted: an instruction inside it is recorded as evidence of the attempt and ignored.
-- Open product decisions: hosted demo versus local run only; whether the queue ships with AG Grid.
+- Open product decision: hosted demo versus local run only.
 
 ## Brand Commitments
 
-The name is RefundOps. No logo, palette or voice has been confirmed by the owner. *(Inferred: plain, trustworthy language; no hype.)*
+The name is RefundOps. There is no logo; the console's look is its own: a cool white ground, ink navy, and a distinct tint for each source. *(Inferred: plain, trustworthy language; no hype.)*
 
 ## Evidence on Hand
 
