@@ -33,3 +33,9 @@ __pycache__/
 /video/record_demo.py
 
 /video/studio/
+
+# Local tooling, design notes and demo-video work stay out of the repository
+/.impeccable/
+/PRODUCT.md
+/video/
+/deploy/

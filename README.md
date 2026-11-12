@@ -182,8 +182,6 @@ Saved logins use an **AES-256-GCM encrypted vault**. The agent sees credential I
 | `templates/`, `static/` | Console and mock-site templates, styles, and frontend assets. |
 | `scripts/` | Sandbox payment seeding, model smoke checks, and mock-site browser smoke check. |
 | `tests/` | Offline application tests, including mocked PayPal API tests. |
-| `deploy/vultr/` | Optional deployment scripts, settings, instructions, and uploader tests. |
-| `video/` | Shot list and recording, editing, and narration tools with their tests. |
 | `data/` | Generated SQLite database, seed state, and evidence media; created at runtime. |
 
 ## Tests
@@ -195,7 +193,7 @@ uv run pytest
 uv run ruff check .
 ```
 
-The application tests mock PayPal and do not require live credentials. Model and browser smoke scripts are separate from these tests; they require their respective model access or a running server and Chromium. See [video/README.md](video/README.md) for video-tool checks and [deploy/vultr/README.md](deploy/vultr/README.md) for deployment-kit checks.
+The application tests mock PayPal and do not require live credentials. Model and browser smoke scripts are separate from these tests; they require their respective model access or a running server and Chromium.
 
 ## Built with
 
@@ -210,7 +208,6 @@ Tools used to build it: Claude Code and OpenAI Codex for code; ElevenLabs for vi
 - Offline approvals do not execute or simulate PayPal writes. Live sandbox execution and verification need your own app, approved payments, and buyer-created disputes.
 - The webhook receiver is tested against a stand-in PayPal client and has not been exercised with a live notification; a local run has no public URL for PayPal to call, so intake normally uses the sync button or `sync_disputes`. Dispute messaging is a client method without a console action, and direct complaint refunds have executor support but no complaint-creation console flow.
 - The executor records verification read errors after a successful write; a local resolved state alone does not prove PayPal has completed a refund or closed a dispute.
-- The optional Vultr deploy kit in `deploy/vultr/` is not part of the verified demo.
 
 ## License
 
