@@ -1,1 +1,25 @@
 /docs/
+/.env
+
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+/.venv/
+/.pytest_cache/
+/.ruff_cache/
+/.worktrees/
+/staticfiles/
+/data/
+/db.sqlite3*
+.idea/
+*.iml
+
+# Demo video media (footage, voice tracks and exports stay out of git)
+*.mp4
+*.webm
+*.mov
+*.mkv
+*.mp3
+*.wav
+/video/footage/
