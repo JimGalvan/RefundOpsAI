@@ -25,3 +25,9 @@ __pycache__/
 /video/footage/
 /.impeccable/review/
 /.impeccable/mocks/
+
+# Video outputs and this build's personal narration/recording scripts stay out of git
+/video/exports/
+/video/voice/
+/video/lines.json
+/video/record_demo.py
