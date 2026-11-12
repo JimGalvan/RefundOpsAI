@@ -1,0 +1,4 @@
+[
+  {"clip": "video/footage/take-01.mp4", "start": 0, "end": 15, "speed": 1, "narration": "video/voice/intro.mp3"},
+  {"clip": "video/footage/take-01.mp4", "start": 15, "end": 60, "speed": 3, "label": "Investigation", "narration": "video/voice/investigate.mp3"}
+]
