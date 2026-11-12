@@ -1,0 +1,3 @@
+{% for line in lines %}<li><span class="t">{{ line.t }}</span><span class="{{ line.class }}">{{ line.text }}</span></li>{% endfor %}
+{% if entries %}<div hx-swap-oob="beforeend:#live-evidence">{% for entry in entries %}{% include "console/_copy.html" %}{% endfor %}</div>{% endif %}
+{% if not done %}<li id="poller" hx-get="{% url 'case_feed' case_id %}?inv={{ inv }}&amp;after={{ after }}&amp;ev={{ ev }}" hx-trigger="load delay:700ms" hx-swap="outerHTML"></li>{% endif %}

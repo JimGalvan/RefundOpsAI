@@ -1,0 +1,36 @@
+<div class="panel" id="evidence">
+  <div class="panel-head">
+    <h2 id="evidence-h">Evidence</h2>
+    {% if evidence_count and not running %}<span class="faint">{{ evidence_count }} facts, each checked against its source</span>{% endif %}
+  </div>
+  <div class="panel-body">
+    {% if running %}
+      {% include "console/_live.html" %}
+    {% elif groups %}
+      {% if completed.summary %}<p style="margin-bottom:14px">{{ completed.summary }}</p>{% endif %}
+      {% for c in contradictions %}
+      <div class="conflict" style="margin-bottom:14px"><strong>Conflict</strong><span>{{ c.note }}</span></div>
+      {% endfor %}
+      <div class="copies">
+        {% for group in groups %}{% for entry in group.entries %}{% include "console/_copy.html" %}{% endfor %}{% endfor %}
+      </div>
+      {% if completed.open_questions %}
+      <div style="margin-top:16px">
+        <h3 class="label">Still open</h3>
+        <ul style="margin:6px 0 0; padding-left:18px">{% for q in completed.open_questions %}<li>{{ q }}</li>{% endfor %}</ul>
+      </div>
+      {% endif %}
+      {% if can_investigate %}
+      <div style="margin-top:18px"><button class="btn btn-secondary" hx-post="{% url 'case_investigate' case.pk %}" hx-target="#case-body" hx-swap="outerHTML">Investigate again</button></div>
+      {% endif %}
+    {% else %}
+      <div class="empty">
+        <h3>{% if investigation and investigation.status == 'failed' %}The last investigation did not finish{% else %}Nothing investigated yet{% endif %}</h3>
+        <p>{% if investigation and investigation.error %}{{ investigation.error }}{% else %}The agent reads PayPal, the order portal, the carrier's tracking page, the store policy and the support inbox, and records only facts it can quote from the page.{% endif %}</p>
+        {% if can_investigate %}
+        <button class="btn" hx-post="{% url 'case_investigate' case.pk %}" hx-target="#case-body" hx-swap="outerHTML">Investigate this case</button>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</div>

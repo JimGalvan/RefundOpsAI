@@ -111,13 +111,35 @@ async def run_investigation(
     after_success: AfterSuccess | None = None,
     echo: Echo | None = None,
 ) -> int:
-    """Investigate one case. Returns the investigation id. Never raises for an agent failure."""
+    """Investigate one case, then write its recommendation. Returns the investigation id.
+
+    The case counts as running until the recommendation is saved, so the page never refreshes onto a half-finished case.
+    """
     if case_id in hub.running:
         raise RuntimeError("An investigation is already running for this case")
+    hub.running.add(case_id)
+    try:
+        return await _run(case_id, hub, after_success, echo)
+    finally:
+        hub.running.discard(case_id)
+
+
+async def _log(investigation: Investigation, hub: Hub, case_id: int, event_type: str, payload: dict) -> None:
+    last = await investigation.events.order_by("-seq").values_list("seq", flat=True).afirst()
+    sequence = (last or 0) + 1
+    await AgentEvent.objects.acreate(investigation=investigation, seq=sequence, type=event_type, payload=payload)
+    hub.publish(case_id, "log", {"seq": sequence, "type": event_type, "payload": payload})
+
+
+async def _run(case_id: int, hub: Hub, after_success: AfterSuccess | None, echo: Echo | None) -> int:
     case = await Case.objects.aget(pk=case_id)
+    # A run the server lost earlier (restart or crash) can never finish: close it so the audit trail is honest.
+    await Investigation.objects.filter(case=case, status=Investigation.Status.RUNNING).aupdate(
+        status=Investigation.Status.FAILED, error="The server stopped before this investigation finished.",
+        finished_at=timezone.now(),
+    )
     strong, fast, _ = model_names()
     investigation = await Investigation.objects.acreate(case=case, strong_model=strong, fast_model=fast)
-    hub.running.add(case_id)
     case.state = Case.State.INVESTIGATING
     await case.asave(update_fields=["state", "updated_at"])
     hub.publish(case_id, "status", {"state": case.state, "investigation_id": investigation.pk})
@@ -141,22 +163,24 @@ async def run_investigation(
         investigation.status = Investigation.Status.FAILED
         investigation.error = f"{type(error).__name__}: {error}"[:2000]
     finally:
-        hub.running.discard(case_id)
         investigation.summary = sink.summary
         investigation.open_questions = sink.open_questions
         investigation.usage = usage
         investigation.finished_at = timezone.now()
         await investigation.asave()
 
-    case.state = Case.State.NEW
-    await case.asave(update_fields=["state", "updated_at"])
+    recommended = False
     if investigation.status == Investigation.Status.COMPLETED and after_success is not None:
+        await _log(investigation, hub, case_id, "recommendation.started", {})
         try:
             await after_success(case, investigation)
+            recommended = True
         except Exception as error:
             logger.exception("Recommendation after investigation %s failed", investigation.pk)
             investigation.error = f"Recommendation failed: {type(error).__name__}: {error}"[:2000]
             await investigation.asave(update_fields=["error"])
+    if not recommended:
+        await Case.objects.filter(pk=case_id).aupdate(state=Case.State.NEW, updated_at=timezone.now())
     await case.arefresh_from_db()
     hub.publish(case_id, "status", {"state": case.state, "investigation_id": investigation.pk, "done": True})
     return investigation.pk

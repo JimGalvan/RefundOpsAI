@@ -1,0 +1,27 @@
+<div id="case-body" class="page page-wide">
+  <a class="back" href="{% url 'queue' %}">Cases</a>
+  <div class="case-head">
+    <div>
+      <h1>{{ case.order_ref|default:case.paypal_dispute_id }}<span class="muted" style="font-weight:500"> &middot; {{ case.buyer_name }}</span></h1>
+      <p class="muted"><span class="mono">{{ case.amount }} {{ case.currency }}</span> &middot; {{ row.reason }}{% if case.stage %} &middot; {{ case.stage|title }} stage{% endif %}</p>
+    </div>
+    <div class="flex items-center gap-4">
+      {% if row.due.date %}
+      <div class="text-right"><div class="label">Respond by</div><div class="{% if row.due.urgent %}due-urgent{% endif %}">{{ row.due.date }} &middot; {{ row.due.text|lower }}</div></div>
+      {% endif %}
+      <span class="chip chip-{{ row.state_tone }}">{{ row.state_label }}</span>
+    </div>
+  </div>
+  {% if offline %}<p class="notice" style="margin-bottom:16px">Offline demo case: built from the demo dataset and never sent to PayPal. Sync your PayPal sandbox for real cases.</p>{% endif %}
+  {% if notice %}<p class="notice" role="status" style="margin-bottom:16px">{{ notice }}</p>{% endif %}
+  {% if error and not can_decide %}<p class="notice notice-error" role="alert" style="margin-bottom:16px">{{ error }}</p>{% endif %}
+  <div class="case-grid">
+    <section class="col-decision" aria-labelledby="rec-h">{% include "console/_recommendation.html" %}</section>
+    <section class="col-evidence" aria-labelledby="evidence-h">{% include "console/_evidence.html" %}</section>
+    <section class="panel col-record" aria-labelledby="record-h">
+      <div class="panel-head"><h2 id="record-h">From PayPal</h2><span class="faint">read-only</span></div>
+      {% include "console/_record.html" %}
+    </section>
+  </div>
+  {% include "console/_audit.html" %}
+</div>

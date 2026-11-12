@@ -58,14 +58,23 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "RefundOpsAI.urls"
 
+# Templates are re-read on every request in debug mode (the dev server does not watch .html files).
+_TEMPLATE_LOADERS: list = [
+    "django.template.loaders.filesystem.Loader",
+    "django.template.loaders.app_directories.Loader",
+]
+if not DEBUG:
+    _TEMPLATE_LOADERS = [("django.template.loaders.cached.Loader", _TEMPLATE_LOADERS)]
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [BASE_DIR / "templates"],
-        "APP_DIRS": True,
         "OPTIONS": {
+            "loaders": _TEMPLATE_LOADERS,
             "context_processors": [
                 "django.template.context_processors.request",
+                "django.template.context_processors.media",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
@@ -107,7 +116,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 WHITENOISE_USE_FINDERS = DEBUG
 WHITENOISE_AUTOREFRESH = DEBUG
 
-MEDIA_URL = "media/"
+MEDIA_URL = "/media/"
 MEDIA_ROOT = DATA_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

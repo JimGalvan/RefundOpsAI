@@ -1,0 +1,30 @@
+<div id="queue">
+  {% if message %}<p class="notice" role="status" style="margin-bottom:12px">{{ message }}</p>{% endif %}
+  {% if rows %}
+  <table class="table table-stack">
+    <thead>
+      <tr><th scope="col">Case</th><th scope="col">Reason</th><th scope="col" class="num">Amount</th><th scope="col">Respond by</th><th scope="col">Status</th></tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td class="cell-case">
+          <a class="case-link" href="{% url 'case_detail' row.case.pk %}">{{ row.case.order_ref|default:row.case.paypal_dispute_id }}</a>
+          <div class="muted">{{ row.case.buyer_name }}{% if row.offline %} <span class="faint">&middot; offline demo</span>{% endif %}</div>
+        </td>
+        <td class="cell-reason">{{ row.reason }}</td>
+        <td class="cell-amount num mono">{{ row.case.amount }} {{ row.case.currency }}</td>
+        <td class="cell-due">{% if row.due.date %}<span class="{% if row.due.urgent %}due-urgent{% endif %}">{{ row.due.text }}</span> <span class="faint">&middot; {{ row.due.date }}</span>{% endif %}</td>
+        <td class="cell-status"><span class="chip chip-{{ row.state_tone }}">{{ row.state_label }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="panel empty">
+    <h3>No cases yet</h3>
+    <p>Sync pulls the open inquiries from your PayPal sandbox. A dispute a buyer opens appears here.</p>
+    <button class="btn" hx-post="{% url 'case_sync' %}" hx-target="#queue" hx-swap="outerHTML">Sync from PayPal</button>
+  </div>
+  {% endif %}
+</div>

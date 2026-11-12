@@ -23,3 +23,5 @@ __pycache__/
 *.mp3
 *.wav
 /video/footage/
+/.impeccable/review/
+/.impeccable/mocks/

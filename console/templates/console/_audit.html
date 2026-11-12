@@ -1,0 +1,12 @@
+<section class="panel" style="margin-top:20px" aria-labelledby="audit-h">
+  <div class="panel-head"><h2 id="audit-h">Audit trail</h2><span class="faint">what was found, who decided, what PayPal reported</span></div>
+  <div class="panel-body">
+    {% if audit %}
+    <ol class="timeline">
+      {% for e in audit %}<li><span class="when">{{ e.when }}</span><div><div class="what">{{ e.what }}</div><div class="detail">{{ e.detail }}</div></div></li>{% endfor %}
+    </ol>
+    {% else %}
+    <p class="muted">Nothing has happened on this case yet.</p>
+    {% endif %}
+  </div>
+</section>

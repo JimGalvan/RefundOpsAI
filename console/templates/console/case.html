@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ case.order_ref|default:case.paypal_dispute_id }} · RefundOps{% endblock %}
+{% block content %}
+{% include "console/_case_body.html" %}
+<script>
+  document.body.addEventListener('refreshCase', function () {
+    htmx.ajax('GET', window.location.pathname, { target: '#case-body', swap: 'outerHTML' });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Cases · RefundOps{% endblock %}
+{% block content %}
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h1>Cases</h1>
+      <p class="muted">PayPal inquiries waiting for a response, soonest deadline first.</p>
+    </div>
+    <button class="btn btn-secondary" hx-post="{% url 'case_sync' %}" hx-target="#queue" hx-swap="outerHTML">Sync from PayPal</button>
+  </div>
+  {% include "console/_queue.html" %}
+</div>
+{% endblock %}

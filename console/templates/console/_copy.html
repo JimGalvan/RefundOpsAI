@@ -1,0 +1,19 @@
+<article class="copy" id="e{{ entry.item.pk }}">
+  <div class="copy-tab tint-{{ entry.key }}"><span>{{ entry.item.source_label|default:"Other" }}</span><span class="key">E{{ entry.item.pk }}</span></div>
+  <div class="copy-body{% if entry.item.screenshot %} has-shot{% endif %}">
+    <div class="copy-text">
+      <p class="claim">{{ entry.item.claim }}</p>
+      <blockquote class="quote">{{ entry.item.quote }}</blockquote>
+      <div class="copy-foot">
+        <span class="{% if entry.item.supports == 'untrusted' %}supports-untrusted{% endif %}">{{ entry.supports_label }}</span>
+        {% if entry.item.source_url %}<a class="mono" href="{{ entry.item.source_url }}" target="_blank" rel="noopener">{{ entry.host }}</a>{% endif %}
+      </div>
+    </div>
+    {% if entry.item.screenshot %}
+    <button type="button" class="shot" @click="shot = '{{ MEDIA_URL }}{{ entry.item.screenshot }}'" aria-label="Open the screenshot of the page that shows this fact">
+      <img src="{{ MEDIA_URL }}{{ entry.item.screenshot }}" alt="">
+      <span>View page</span>
+    </button>
+    {% endif %}
+  </div>
+</article>

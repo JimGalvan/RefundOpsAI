@@ -1,0 +1,11 @@
+<div class="boxes">
+  {% for box in boxes %}
+  <div class="box{% if box.wide %} box-wide{% endif %}"><span class="label">{{ box.label }}</span><span class="value{% if box.mono %} mono{% endif %}">{{ box.value }}</span></div>
+  {% endfor %}
+</div>
+{% if allowed %}
+<div class="panel-body" style="border-top:1px solid var(--seam)">
+  <span class="label">PayPal currently allows</span>
+  <div class="tags" style="margin-top:6px">{% for a in allowed %}<span class="tag">{{ a.label }}</span>{% endfor %}</div>
+</div>
+{% endif %}

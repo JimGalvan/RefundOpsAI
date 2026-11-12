@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Sources · RefundOps{% endblock %}
+{% block content %}
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h1>Sources</h1>
+      <p class="muted">The merchant tools the agent may visit. It can reach these sites and nothing else.</p>
+    </div>
+  </div>
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th scope="col">Tool</th><th scope="col">Address</th><th scope="col">Access</th></tr></thead>
+    <tbody>
+      {% for site in sites %}
+      <tr>
+        <td><strong>{{ site.brand }}</strong></td>
+        <td class="mono">{{ site.host }}</td>
+        <td>{% if site.login %}Sign-in with a saved login{% else %}Public{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table></div>
+  <div class="panel" style="margin-top:24px">
+    <div class="panel-head"><h2>Saved logins</h2><span class="faint">encrypted at rest, never shown again</span></div>
+    <div class="panel-body">
+      <p class="muted" style="margin-bottom:12px">The agent only sees a login's name and which fields exist. When it needs a value, the vault checks the page's address against the allowed list, and the browser types the value as keystrokes.</p>
+      {% if credentials %}
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th scope="col">Name</th><th scope="col">Allowed addresses</th><th scope="col">Login</th><th scope="col">Fields</th></tr></thead>
+        <tbody>
+          {% for c in credentials %}
+          <tr><td>{{ c.name }}</td><td class="mono">{{ c.allowed_domains|join:", " }}</td><td class="mono">{{ c.login_hint }}</td><td>{{ c.available_fields|join:", " }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table></div>
+      {% else %}
+      <p class="muted">No saved logins yet. Run <code>manage.py seed_demo</code> to save the demo logins.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

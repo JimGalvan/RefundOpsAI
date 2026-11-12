@@ -1,0 +1,101 @@
+{% load console_extras %}
+<div class="panel" x-data="{ mode: 'view', action: '{{ recommendation.action|default:"" }}', money: ['ACCEPT_CLAIM', 'MAKE_OFFER', 'REFUND'] }">
+  <div class="panel-head">
+    <h2 id="rec-h">Recommendation</h2>
+    {% if recommendation %}<span class="faint">{{ recommendation.confidence }} confidence</span>{% endif %}
+  </div>
+  <div class="panel-body">
+    {% if not recommendation %}
+      <p class="muted">After the investigation, a recommendation appears here, limited to the responses PayPal currently allows for this dispute.</p>
+    {% else %}
+      <p class="rec-action">{{ rec_label }}</p>
+      {% if recommendation.amount %}<p class="rec-amount">{{ recommendation.amount }} <span class="muted" style="font-size:16px">{{ recommendation.currency }}</span></p>{% endif %}
+      <h3 class="rec-headline">{{ recommendation.headline }}</h3>
+      <p class="rationale">{{ rationale }}</p>
+      {% if recommendation.buyer_note %}
+      <div style="margin-top:14px"><span class="label">Message to the buyer</span><blockquote class="quote" style="margin-top:6px">{{ recommendation.buyer_note }}</blockquote></div>
+      {% endif %}
+      <ul class="checks-inline" aria-label="Safety checks">
+        {% if recommendation.guardrails.ok %}
+          <li class="check">Allowed by PayPal</li>
+          <li class="check">Within refundable amount</li>
+          <li class="check">{{ recommendation.citations|length }} facts verified</li>
+          <li class="check">Deadline open</li>
+        {% else %}
+          {% for v in recommendation.guardrails.violations %}<li class="check check-fail">{{ v }}</li>{% endfor %}
+        {% endif %}
+      </ul>
+    {% endif %}
+  </div>
+
+  {% if can_decide %}
+  <div class="stub">
+    {% if error %}<p class="error-note" role="alert" style="margin-bottom:12px">{{ error }}</p>{% endif %}
+    <form hx-post="{% url 'case_decide' case.pk %}" hx-target="#case-body" hx-swap="outerHTML">
+      <input type="hidden" name="outcome" :value="mode === 'edit' ? 'edit' : 'approve'">
+      <div x-show="mode === 'edit'" x-cloak class="grid gap-3" style="margin-bottom:12px">
+        <label class="block"><span class="label">Response</span>
+          <select name="action" class="field-select" x-model="action">
+            {% for a in allowed %}<option value="{{ a.value }}"{% if a.value == recommendation.action %} selected{% endif %}>{{ a.label }}</option>{% endfor %}
+          </select>
+        </label>
+        <label class="block" x-show="money.includes(action)"><span class="label">Amount ({{ case.currency }})</span>
+          <input class="field-input mono" name="amount" inputmode="decimal" value="{{ recommendation.amount|default_if_none:'' }}" :disabled="!money.includes(action)">
+        </label>
+        <label class="block"><span class="label">Message to the buyer</span>
+          <textarea name="note" class="field-area">{{ recommendation.buyer_note }}</textarea>
+        </label>
+      </div>
+      <button type="submit" class="btn btn-block"><span x-text="mode === 'edit' ? 'Send my edited response to PayPal' : '{{ approve_label|escapejs }}'"></span></button>
+      <button type="button" class="btn btn-secondary btn-block" style="margin-top:8px" @click="mode = mode === 'edit' ? 'view' : 'edit'"><span x-text="mode === 'edit' ? 'Cancel editing' : 'Edit before sending'"></span></button>
+    </form>
+    <div class="reject-zone">
+      <details>
+        <summary class="btn btn-reject btn-block">Reject this recommendation</summary>
+        <form hx-post="{% url 'case_decide' case.pk %}" hx-target="#case-body" hx-swap="outerHTML" style="margin-top:12px; display:grid; gap:8px">
+          <input type="hidden" name="outcome" value="reject">
+          <label><span class="label">Why are you rejecting it?</span>
+            <textarea name="note" class="field-area" required placeholder="This reason is kept in the audit trail."></textarea></label>
+          <button type="submit" class="btn btn-reject btn-block">Reject and record the reason</button>
+        </form>
+      </details>
+    </div>
+  </div>
+  {% elif decision %}
+  <div class="stub">
+    {% if decision.outcome == 'rejected' %}
+      <span class="stamp stamp-bad">Rejected</span>
+      <p style="margin-top:12px">{{ decision.note }}</p>
+    {% elif last_action and last_action.status == 'ok' %}
+      <span class="stamp">Sent to PayPal</span>
+      <dl style="margin:14px 0 0; display:grid; gap:8px; font-size:14px">
+        <div><dt class="label">Response</dt><dd>{{ action_labels|get_item:decision.action|default:decision.action }}</dd></div>
+        {% for key, value in last_action.paypal_ids.items %}{% if value %}<div><dt class="label">{{ key|cut:"_id" }} id</dt><dd class="mono">{{ value }}</dd></div>{% endif %}{% endfor %}
+        {% for key, value in last_action.verification.items %}{% if value %}<div><dt class="label">PayPal now says: {{ key|cut:"_" }}</dt><dd class="mono">{{ value }}</dd></div>{% endif %}{% endfor %}
+      </dl>
+    {% elif last_action and last_action.status == 'failed' %}
+      <span class="stamp stamp-bad">PayPal refused</span>
+      <p class="muted" style="margin-top:12px">Nothing was changed. The merchant can try again.</p>
+    {% else %}
+      <p class="muted">Decision recorded.</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if recommendation and alternatives or recommendation.missing %}
+  <details class="more">
+    <summary>Alternatives considered and what is missing</summary>
+    <div class="panel-body">
+      {% if alternatives %}
+      <span class="label">Considered, not chosen</span>
+      <ul style="margin:6px 0 0; padding-left:18px">{% for alt in alternatives %}<li style="margin-bottom:6px"><strong>{{ alt.action }}</strong>: {{ alt.why_not }}</li>{% endfor %}</ul>
+      {% endif %}
+      {% if recommendation.missing %}
+      <div style="margin-top:12px"><span class="label">Missing</span>
+        <ul style="margin:6px 0 0; padding-left:18px">{% for m in recommendation.missing %}<li>{{ m }}</li>{% endfor %}</ul>
+      </div>
+      {% endif %}
+    </div>
+  </details>
+  {% endif %}
+</div>

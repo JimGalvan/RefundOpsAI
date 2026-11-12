@@ -1,3 +1,4 @@
+import pytest
 from django.test import Client
 
 
@@ -7,6 +8,7 @@ def test_health_endpoint():
     assert response.json() == {"status": "ok"}
 
 
+@pytest.mark.django_db
 def test_home_page_renders():
     response = Client().get("/")
     assert response.status_code == 200

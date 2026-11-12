@@ -1,17 +1,32 @@
-<!doctype html>
-<html lang="en" class="h-full">
+{% load static %}<!doctype html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}RefundOps{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>window.tailwind = { config: { corePlugins: { preflight: false } } };</script>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="stylesheet" href="{% static 'css/refundops.css' %}">
   <script src="https://unpkg.com/htmx.org@2.0.4"></script>
-  <script src="https://unpkg.com/htmx-ext-sse@2.2.2/sse.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
-  <style>[x-cloak] { display: none !important; }</style>
-  {% block head %}{% endblock %}
 </head>
-<body class="h-full bg-slate-50 text-slate-900 antialiased" hx-ext="sse">
-  {% block content %}{% endblock %}
+<body x-data="{ shot: null }" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' @keydown.escape.window="shot = null">
+  <header class="bar">
+    <div class="bar-inner">
+      <a class="wordmark" href="{% url 'queue' %}">RefundOps</a>
+      <nav class="flex items-center gap-6" aria-label="Primary">
+        <a class="nav-link" href="{% url 'queue' %}"{% if active == 'queue' %} aria-current="page"{% endif %}>Cases</a>
+        <a class="nav-link" href="{% url 'sources' %}"{% if active == 'sources' %} aria-current="page"{% endif %}>Sources</a>
+      </nav>
+      <div class="bar-right"><span class="env">PayPal sandbox</span></div>
+    </div>
+  </header>
+  <main>{% block content %}{% endblock %}</main>
+  <div class="lightbox" x-show="shot" x-cloak @click="shot = null" role="dialog" aria-label="Screenshot of the source page">
+    <img :src="shot" alt="Screenshot of the source page">
+  </div>
 </body>
 </html>

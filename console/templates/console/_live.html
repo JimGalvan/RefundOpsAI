@@ -1,0 +1,11 @@
+<div class="live" aria-live="polite">
+  <div class="flex items-center gap-3" style="margin-bottom:12px">
+    <span class="pulse"></span><strong>Investigating</strong>
+    <span class="muted">Reading PayPal and the merchant's tools. Every fact is checked against its page.</span>
+  </div>
+  <img class="live-frame" src="{% url 'case_frame' case.pk %}" alt="Live view of the agent's browser" x-data="{ n: 0 }" x-init="setInterval(() => n++, 700)" :src="'{% url 'case_frame' case.pk %}?n=' + n">
+  <ol id="log" class="log" style="margin-top:14px">
+    <li id="poller" hx-get="{% url 'case_feed' case.pk %}?inv={{ investigation.pk }}&amp;after=0&amp;ev=0" hx-trigger="load delay:400ms" hx-swap="outerHTML"></li>
+  </ol>
+  <div id="live-evidence" class="copies" style="margin-top:16px"></div>
+</div>
