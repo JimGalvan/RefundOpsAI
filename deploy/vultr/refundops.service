@@ -1,0 +1,32 @@
+[Unit]
+Description=RefundOps ASGI application
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=refundops
+Group=refundops
+WorkingDirectory=/opt/refundops
+EnvironmentFile=/etc/refundops/refundops.env
+Environment=DJANGO_SETTINGS_MODULE=deploy.vultr.production_settings
+Environment=HOME=/var/lib/refundops
+Environment=XDG_CACHE_HOME=/var/lib/refundops/.cache
+Environment=PLAYWRIGHT_BROWSERS_PATH=/var/lib/refundops/browsers
+Environment=TMPDIR=/var/lib/refundops/tmp
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/refundops/.venv/bin/uvicorn RefundOpsAI.asgi:application --host 127.0.0.1 --port 8000 --workers 1 --proxy-headers --forwarded-allow-ips 127.0.0.1
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadOnlyPaths=/
+ReadWritePaths=/var/lib/refundops
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target
