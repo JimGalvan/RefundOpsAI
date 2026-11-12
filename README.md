@@ -199,7 +199,7 @@ The application tests mock PayPal and do not require live credentials. Model and
 
 ## Prior work and disclosure
 
-The browser-agent core (`navgent/`) is the author's earlier project Navgent, written Nov 7 to 9, 2026 for a different hackathon and reused here under the MIT license. It is vendored, and every change to it is listed in `navgent/VENDORED.md`. RefundOps itself was built for this hackathon: the Django app and console, the PayPal integration, the investigator agent and evidence verification, the recommendation and approval flow, the executor with verification, the mock merchant sites, the vault port and the UI.
+The browser-agent core (`navgent/`) is the author's earlier project Navgent, written for a different hackathon and reused here under the MIT license. It is vendored, and every change to it is listed in `navgent/VENDORED.md`. RefundOps itself was built for this hackathon: the Django app and console, the PayPal integration, the investigator agent and evidence verification, the recommendation and approval flow, the executor with verification, the mock merchant sites, the vault port and the UI.
 
 ## Built with
 

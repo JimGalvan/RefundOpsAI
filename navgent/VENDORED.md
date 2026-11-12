@@ -1,6 +1,6 @@
 # Vendored Navgent core
 
-This package is copied from the author's private project **Navgent**, a browser agent built on LangChain deepagents and Playwright. Navgent was written Nov 7 to 9, 2026 for a different hackathon. It is reused here under the MIT license (see the repository `LICENSE`, same copyright holder).
+This package is copied from the author's private project **Navgent**, a browser agent built on LangChain deepagents and Playwright. Navgent was written for a different hackathon. It is reused here under the MIT license (see the repository `LICENSE`, same copyright holder).
 
 - **Source commit:** `821b217b10b99cd5061d7d6a9da01dfec25c517a` (no uncommitted changes under `navgent/` at the time)
 - **Vendored on:** 2026-11-11
