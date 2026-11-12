@@ -15,6 +15,7 @@
     {% if running %}
       {% include "console/_live.html" %}
     {% elif groups %}
+      {% if investigation and investigation.strong_model == 'replay' %}<p class="notice" style="margin-bottom:14px">Recorded run: this investigation was replayed from a saved real run. No model or browser was used.</p>{% endif %}
       {% if completed.summary %}<p style="margin-bottom:14px">{{ completed.summary }}</p>{% endif %}
       {% for c in contradictions %}
       <div class="conflict" style="margin-bottom:14px"><strong>Conflict</strong><span>{{ c.note }}</span></div>

@@ -25,6 +25,7 @@ from console.presenters import (
     group_evidence,
 )
 from console.recommend import generate_recommendation
+from console.replay import replay_wanted, run_replay
 from demo_sites.data import WORLD
 from paypal_client import PayPalClient, PayPalError
 from vault.models import Credential
@@ -86,9 +87,12 @@ async def case_investigate(request: HttpRequest, pk: int) -> HttpResponse:
     if pk not in hub.running and case.state in INVESTIGABLE:
         previous = await Investigation.objects.filter(case_id=pk).order_by("-pk").values_list("pk", flat=True).afirst()
         # A fresh context: the task outlives this request, and asgiref ties ORM calls to the request's executor.
-        task = asyncio.create_task(
-            run_investigation(pk, hub, after_success=generate_recommendation), context=contextvars.Context()
-        )
+        # Offline demo cases replay a recorded run when no model key is set (or REFUNDOPS_REPLAY=1).
+        if await sync_to_async(replay_wanted)(case):
+            work = run_replay(pk, hub)
+        else:
+            work = run_investigation(pk, hub, after_success=generate_recommendation)
+        task = asyncio.create_task(work, context=contextvars.Context())
         _background.add(task)
         task.add_done_callback(_background.discard)
         await _wait_for_new_investigation(pk, previous)
