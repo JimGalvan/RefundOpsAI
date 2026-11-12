@@ -1,0 +1,3 @@
+{% extends "demo_sites/base.html" %}
+{% block title %}{{ store.policy.title }}{% endblock %}
+{% block content %}<article><h1>{{ store.policy.title }}</h1><p>{{ store.policy.effective }}</p><nav aria-label="Policy sections">{% for section in store.policy.sections %}<a href="#{{ section.id }}">{{ section.heading }}</a>{% endfor %}</nav>{% for section in store.policy.sections %}<section id="{{ section.id }}"><h2>{{ section.heading }}</h2><p>{{ section.text }}</p></section>{% endfor %}</article>{% endblock %}

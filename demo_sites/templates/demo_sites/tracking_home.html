@@ -1,0 +1,4 @@
+{% extends "demo_sites/base.html" %}
+{% block title %}Track a shipment{% endblock %}
+{% block content %}<h1>Follow your parcel.</h1><p>Enter your tracking number to see the latest shipment updates.</p>
+<form class="search" method="get" action="/"><label for="tracking-number">Tracking number<input id="tracking-number" name="number" required></label><button type="submit">Track</button></form>{% endblock %}
