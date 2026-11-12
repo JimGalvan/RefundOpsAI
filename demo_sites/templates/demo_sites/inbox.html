@@ -1,0 +1,5 @@
+{% extends "demo_sites/base.html" %}
+{% block title %}Inbox{% endblock %}
+{% block content %}<aside aria-label="Mail folders"><a href="/inbox/">Inbox</a></aside><h1>Inbox</h1>
+<form class="search" method="get" action="/inbox/"><label for="mail-query">Search mail<input id="mail-query" name="q" value="{{ query }}"></label><button type="submit">Search</button></form>
+<div class="table-wrap"><table><caption>Messages · newest first</caption><thead><tr><th scope="col">From</th><th scope="col">Subject</th><th scope="col">Received</th></tr></thead><tbody>{% for message in messages %}<tr><td>{{ message.sender }}</td><td><a href="/inbox/{{ message.id }}/">{{ message.subject }}</a></td><td>{{ message.date }}</td></tr>{% empty %}<tr><td colspan="3">No messages found.</td></tr>{% endfor %}</tbody></table></div>{% endblock %}

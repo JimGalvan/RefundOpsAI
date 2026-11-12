@@ -1,0 +1,5 @@
+{% extends "demo_sites/base.html" %}
+{% block title %}Tracking {{ number }}{% endblock %}
+{% block content %}{% if order %}<section class="summary" aria-label="Shipment summary"><h1>{{ order.tracking.summary }}</h1><p>Tracking number: <strong>{{ number }}</strong></p><p>Carrier: {{ order.fulfillment.carrier }}</p></section>
+<div class="table-wrap"><table><caption>Shipment history · newest first</caption><thead><tr><th scope="col">Date and time</th><th scope="col">Location</th><th scope="col">Status</th></tr></thead><tbody>{% for event in events %}<tr><td>{{ event.date }}</td><td>{{ event.location }}</td><td>{{ event.status }}</td></tr>{% endfor %}</tbody></table></div>
+{% else %}<h1>No shipment found</h1><p>No shipment found for {{ number }}.</p>{% endif %}<p><a href="/">Track another shipment</a></p>{% endblock %}
