@@ -1,6 +1,6 @@
 from django.urls import path
 
-from console import views
+from console import views, webhooks
 
 urlpatterns = [
     path("", views.queue, name="queue"),
@@ -11,4 +11,5 @@ urlpatterns = [
     path("cases/<int:pk>/frame.jpg", views.case_frame, name="case_frame"),
     path("cases/<int:pk>/decide/", views.case_decide, name="case_decide"),
     path("sources/", views.sources, name="sources"),
+    path("paypal/webhook/", webhooks.paypal_webhook, name="paypal_webhook"),
 ]

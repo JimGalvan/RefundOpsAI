@@ -313,6 +313,14 @@ def test_missing_rest_keys_answer_503(client: Client, monkeypatch: pytest.Monkey
     assert response.json() == {"error": "paypal not configured"}
 
 
+def test_route_is_wired_into_the_site_urls(client: Client, settings: Any, monkeypatch: pytest.MonkeyPatch) -> None:
+    settings.ROOT_URLCONF = "RefundOpsAI.urls"
+    monkeypatch.delenv("PAYPAL_WEBHOOK_ID", raising=False)
+    response = client.post("/paypal/webhook/", data="{}", content_type="application/json")
+    assert response.status_code == 503
+    assert response.json() == {"error": "webhook not configured"}
+
+
 def test_logs_only_event_identifiers(
     client: Client, fake: FakeClient, caplog: pytest.LogCaptureFixture
 ) -> None:
