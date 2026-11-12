@@ -54,6 +54,30 @@ def brand_for_host(host: str) -> str:
     return host
 
 
+async def _read_current_page(browser: BrowserSession) -> str:
+    """Page text plus form values, retrying while the page is navigating (a read mid-navigation raises)."""
+    last_error: Exception | None = None
+    for _ in range(3):
+        try:
+            page_text = await browser.get_page_text()
+            form_values = await browser.get_form_values()
+            return f"{page_text}\n" + "\n".join(form_values)
+        except Exception as error:
+            last_error = error
+            try:
+                await browser.wait_for_page_to_settle()
+            except Exception:
+                pass
+    raise RuntimeError(f"The page could not be read: {last_error}")
+
+
+async def _screenshot(browser: BrowserSession) -> bytes | None:
+    try:
+        return await browser.capture_screen_frame(SCREENSHOT_QUALITY)
+    except Exception:
+        return None
+
+
 def build_investigator_tools(browser: BrowserSession, context: InvestigationContext) -> list[BaseTool]:
     @tool(args_schema=EvidenceInput)
     async def record_evidence(
@@ -71,10 +95,15 @@ def build_investigator_tools(browser: BrowserSession, context: InvestigationCont
         if source == "paypal":
             haystack, label, url, screenshot = context.paypal_record, "PayPal", "", None
         else:
-            page_text = await browser.get_page_text()
-            form_values = await browser.get_form_values()
-            haystack = f"{page_text}\n" + "\n".join(form_values)
-            url = browser.page.url
+            screenshot = None
+            try:
+                haystack = await _read_current_page(browser)
+                url = browser.page.url
+            except Exception:
+                return (
+                    "The page was still changing and could not be read. Call observe_page, then call "
+                    "record_evidence again."
+                )
             label = brand_for_host(urlsplit(url).hostname or "")
         problem = check_quote(quote, haystack)
         if problem:
@@ -83,7 +112,7 @@ def build_investigator_tools(browser: BrowserSession, context: InvestigationCont
         if key in context.recorded_quotes:
             return f"Already recorded as E{context.recorded_quotes[key]}. Record a different fact or move on."
         if source != "paypal":
-            screenshot = await browser.capture_screen_frame(SCREENSHOT_QUALITY)
+            screenshot = await _screenshot(browser)
         evidence_id = await context.sink.add_evidence(
             EvidenceItem(
                 kind=kind,

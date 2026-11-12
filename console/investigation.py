@@ -14,7 +14,8 @@ from langchain_core.callbacks import get_usage_metadata_callback
 
 from cases.models import AgentEvent, Case, Evidence, Investigation
 from cases.paypal_record import build_paypal_record
-from console.hub import Hub, hub as default_hub
+from console.hub import Hub
+from console.hub import hub as default_hub
 from investigator.agent import make_agent_builder
 from investigator.config import agent_settings, model_names
 from investigator.credentials import HostRoutedCredentialProvider
