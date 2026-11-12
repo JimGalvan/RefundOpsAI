@@ -8,8 +8,10 @@ import json
 from copy import deepcopy
 from decimal import Decimal
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
+from django.test import Client
 
 from cases.executor import decide, execute_decision
 from cases.models import (
@@ -81,6 +83,24 @@ def ready_case(client: PayPalSandboxDouble, action: str, amount: str | None) -> 
     Case.objects.filter(pk=case.pk).update(state=Case.State.READY)
     case.refresh_from_db()
     return case
+
+
+@pytest.mark.django_db
+def test_double_approve_post_cannot_send_a_second_refund():
+    paypal = PayPalSandboxDouble("intake_120")
+    case = ready_case(paypal, "ACCEPT_CLAIM", "120.00")
+    browser = Client()
+    with patch("console.views.PayPalClient.from_env", return_value=paypal) as factory:
+        first = browser.post(f"/cases/{case.pk}/decide/", {"outcome": "approve"})
+        second = browser.post(f"/cases/{case.pk}/decide/", {"outcome": "approve"})
+    assert first.status_code == second.status_code == 200
+    assert "must be ready for review" in second.content.decode()
+    assert len(paypal.writes) == 1
+    assert factory.call_count == 1
+    assert Decision.objects.filter(case=case).count() == 1
+    execution = PayPalAction.objects.get(case=case)
+    assert execution.status == "ok"
+    assert execution.verification["dispute_status"] == "RESOLVED"
 
 
 @pytest.mark.django_db

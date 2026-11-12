@@ -14,6 +14,7 @@ from paypal_client.errors import safe_text
 
 from .guardrails import MONEY_ACTIONS, check_recommendation
 from .models import Case, Decision, PayPalAction, Recommendation
+from .paypal_record import counted_refunds
 
 
 class ExecutionError(Exception):
@@ -190,9 +191,8 @@ def _read_paypal_facts(case: Case, client: PayPalClient) -> Decimal:
         raise ExecutionError("The capture has no PayPal order ID")
     order = client.get_order(order_id)
     refundable = _decimal_amount(capture["amount"], case.currency)
-    for refund in order["purchase_units"][0].get("payments", {}).get("refunds", []):
-        if refund.get("status") in {"COMPLETED", "PENDING"}:
-            refundable -= _decimal_amount(refund["amount"], case.currency)
+    for refund in counted_refunds(order):  # a complaint hold is not a refund (see cases/paypal_record.py)
+        refundable -= _decimal_amount(refund["amount"], case.currency)
     if capture.get("status") == "REFUNDED":
         refundable = Decimal("0")
     return refundable

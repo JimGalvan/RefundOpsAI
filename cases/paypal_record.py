@@ -14,15 +14,24 @@ def _refunds(order: dict | None) -> list[dict]:
     return (_unit(order).get("payments") or {}).get("refunds") or []
 
 
+def held_for_complaint(order: dict | None) -> bool:
+    """True while PayPal holds the capture for the open buyer complaint."""
+    captures = (_unit(order).get("payments") or {}).get("captures") or []
+    return any((capture.get("status_details") or {}).get("reason") == "BUYER_COMPLAINT" for capture in captures)
+
+
+def counted_refunds(order: dict | None) -> list[dict]:
+    """Refunds that have gone to the buyer or are on their way.
+
+    While the capture is held for the buyer complaint, the sandbox lists the seller's net amount as a PENDING refund.
+    That entry is the hold, not money returned to the buyer, so it must not shrink what can still be refunded.
+    """
+    held = held_for_complaint(order)
+    return [r for r in _refunds(order) if r.get("status") == "COMPLETED" or (r.get("status") == "PENDING" and not held)]
+
+
 def refund_total(order: dict | None) -> Decimal:
-    return sum(
-        (
-            Decimal((refund.get("amount") or {}).get("value") or "0")
-            for refund in _refunds(order)
-            if refund.get("status") in {"COMPLETED", "PENDING"}
-        ),
-        Decimal("0"),
-    )
+    return sum((Decimal((refund.get("amount") or {}).get("value") or "0") for refund in counted_refunds(order)), Decimal("0"))
 
 
 def _money(amount: dict, fallback_currency: str = "") -> str:
@@ -74,7 +83,8 @@ def build_paypal_record(case: Case) -> str:
         add("Payment", payment)
     if order is not None:
         refunds = []
-        for refund in _refunds(order):
+        counted = counted_refunds(order)
+        for refund in counted:
             money = _money(refund.get("amount") or {}, case.currency)
             details = ", ".join(filter(None, (
                 f"id {refund['id']}" if refund.get("id") else "",
@@ -85,8 +95,10 @@ def build_paypal_record(case: Case) -> str:
                 refunds.append(text)
         if refunds:
             add("Earlier refunds", "; ".join(refunds))
-        elif not _refunds(order):
+        else:
             add("Earlier refunds", "none")
+        if held_for_complaint(order) and len(counted) < len(_refunds(order)):
+            add("Complaint hold", "PayPal lists a pending entry for the held funds while the capture is held for a buyer complaint; no refund has been paid to the buyer")
     add("Store order number (invoice_id)", unit.get("invoice_id"))
     shipping = unit.get("shipping") or {}
     address = shipping.get("address") or {}

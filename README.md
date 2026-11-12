@@ -105,6 +105,20 @@ Open [http://localhost:8000/](http://localhost:8000/). The queue's **Sync from P
 
 The orders use the fixture order references as `invoice_id` to connect PayPal payments to the mock merchant records. The seed script saves order and capture IDs in `data/seed_state.json`. Use a fresh database for a separate sandbox-only queue if you previously seeded offline cases.
 
+#### Live validation status (November 12, 2026)
+
+OAuth and dispute intake passed against the sandbox: both seeded payments were captured, and the buyer-created disputes were imported with `ACCEPT_CLAIM` and `MAKE_OFFER` allowed. The live investigation of Case A completed with 18 source-verified evidence items, including an injected instruction recorded as untrusted.
+
+The live recommendation differed from the fixture expectation: it proposed a $4.68 offer because the order response contained a pending $115.32 refund. Case B's order response similarly contained a pending $86.37 refund. Both captures reported `PENDING` with reason `BUYER_COMPLAINT`; the pending refund entries reported a cumulative refunded amount of zero. Their meaning needs reconciliation with individual refund reads before approval. Neither action has been approved or executed through RefundOps, so live refund execution and closure are **not yet verified**. The offline fixtures still demonstrate the expected $120 refund and $25 offer.
+
+Inspect payment facts without approving an action or changing the database:
+
+```sh
+uv run python manage.py inspect_paypal 7 8 --save
+```
+
+Replace the case IDs with those in your own database. The command reads each dispute, capture, order and individual refund, prints a summary, and saves the response bodies under gitignored `data/paypal_checks/`. It never calls a money-moving endpoint. Add `--cached` to inspect the stored snapshots without contacting PayPal. Do not discard pending refunds or change the refundable limit merely to obtain the expected demo recommendation.
+
 ## PayPal integration
 
 The implementation is in [paypal_client/client.py](paypal_client/client.py). The client is **sandbox-only by design** and rejects any other environment. Every write carries a `PayPal-Request-Id` idempotency key; the executor stores the key with the approved action. After execution, it verifies the result by reading PayPal again and records the returned status or a verification error.
