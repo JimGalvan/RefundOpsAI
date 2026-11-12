@@ -16,4 +16,4 @@ This package is copied from the author's private project **Navgent**, a browser 
 
 Everything RefundOps-specific lives outside this folder, in `investigator/`. Any edit made inside `navgent/` is listed here with the reason:
 
-- _none yet_
+- `session.py`: `BrowserAgentSession` takes an optional `agent_builder` argument (default: Navgent's own `build_browser_agent`) so RefundOps can plug in its investigator agent without copying the session.

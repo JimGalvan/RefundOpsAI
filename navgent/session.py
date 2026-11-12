@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import time
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -58,6 +58,7 @@ class BrowserAgentSession:
             *,
             credential_provider: CredentialProvider | None = None,
             selected_credential_ids: tuple[UUID, ...] = (),
+            agent_builder: Callable[..., Any] = build_browser_agent,
     ) -> None:
         if settings.max_runtime_seconds <= 0:
             raise ValueError("max_runtime_seconds must be greater than 0")
@@ -86,7 +87,7 @@ class BrowserAgentSession:
         self._sensitive_inputs = SensitiveInputChannel()
         if credential_provider:
             credential_provider = SelectedCredentialProvider(credential_provider, selected_credential_ids)
-        agent = build_browser_agent(
+        agent = agent_builder(
             self._browser, self._sensitive_inputs, settings,
             credential_provider=credential_provider, redactor=self._redactor,
         )
