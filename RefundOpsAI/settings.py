@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "cases",
     "vault",
     "demo_sites",
+    "console",
 ]
 
 MIDDLEWARE = [
@@ -118,3 +119,5 @@ SITE_HOSTS = env_list(
     "REFUNDOPS_SITE_HOSTS",
     ["portal.localhost", "tracking.localhost", "inbox.localhost", "store.localhost"],
 )
+# Port the mock merchant sites are reached on from the machine running the agent's browser.
+SITE_PORT = int(os.getenv("REFUNDOPS_SITE_PORT", "8000"))
