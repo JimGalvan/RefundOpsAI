@@ -128,6 +128,10 @@ async def _run(case_id: int, hub: Hub, speed: float | None) -> int:
         timeline = fixture["timeline"]
         delays = _delays(timeline, speed if speed is not None else float(os.environ.get("REFUNDOPS_REPLAY_SPEED", "1")))
         ids: dict[int, int] = {}
+        # Show a page in the live browser view from the start instead of an empty frame.
+        first_shot = next((item["screenshot"] for item in timeline if item.get("screenshot")), None)
+        if first_shot:
+            hub.frames[case.pk] = await asyncio.to_thread(_jpeg_path(REPLAY_DIR, first_shot).read_bytes)
         for item, delay in zip(timeline, delays, strict=True):
             await asyncio.sleep(delay)
             if item["kind"] == "event":

@@ -31,3 +31,5 @@ __pycache__/
 /video/voice/
 /video/lines.json
 /video/record_demo.py
+
+/video/studio/
