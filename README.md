@@ -41,7 +41,7 @@ In PowerShell, use this copy command instead:
 Copy-Item .env.example .env
 ```
 
-Edit `.env` locally. Both modes need a model key and a local vault encryption key; the offline demo needs no PayPal credentials. Generate the vault key once:
+Edit `.env` locally. Both modes need a local vault encryption key; the offline demo needs no PayPal credentials. A model key is needed for live investigations; without one, the offline demo cases replay a recorded investigation (set `REFUNDOPS_REPLAY=1` to force that even with a key, `0` to force a live run). Generate the vault key once:
 
 ```sh
 uv run python -c "import os,base64;print(base64.b64encode(os.urandom(32)).decode())"
@@ -61,7 +61,7 @@ Choose models available to your provider account. Do not commit `.env`.
 
 ### Offline demo
 
-“Offline” means no PayPal connection: the case records and merchant sites are local fixtures. Investigation and recommendation still contact the configured model provider, and the console loads frontend libraries from CDNs.
+“Offline” means no PayPal connection: the case records and merchant sites are local fixtures. With a model key, investigation and recommendation still contact the configured model provider (without one they replay the recording in `demo_data/replays/`), and the console loads frontend libraries from CDNs.
 
 ```sh
 uv run python manage.py migrate
