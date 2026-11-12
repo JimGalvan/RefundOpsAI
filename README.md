@@ -107,9 +107,9 @@ The orders use the fixture order references as `invoice_id` to connect PayPal pa
 
 #### Live validation status (November 12, 2026)
 
-OAuth and dispute intake passed against the sandbox: both seeded payments were captured, and the buyer-created disputes were imported with `ACCEPT_CLAIM` and `MAKE_OFFER` allowed. The live investigation of Case A completed with 18 source-verified evidence items, including an injected instruction recorded as untrusted.
+OAuth, dispute intake, investigation, approval, execution and verification have all run against the PayPal sandbox. Both seeded payments were captured and the buyer-created inquiries were imported. Case A ($120): 18 source-verified evidence items, a full-refund recommendation, and after approval `accept-claim` succeeded and PayPal then showed the capture as refunded. Case B ($90): a $20 goodwill offer (the store policy allows up to 30 percent, $27) was sent with `make-offer`; the offer still awaits the buyer, so the capture stays pending and the case shows as handled locally, not as paid.
 
-The live recommendation differed from the fixture expectation: it proposed a $4.68 offer because the order response contained a pending $115.32 refund. Case B's order response similarly contained a pending $86.37 refund. Both captures reported `PENDING` with reason `BUYER_COMPLAINT`; the pending refund entries reported a cumulative refunded amount of zero. Their meaning needs reconciliation with individual refund reads before approval. Neither action has been approved or executed through RefundOps, so live refund execution and closure are **not yet verified**. The offline fixtures still demonstrate the expected $120 refund and $25 offer.
+One sandbox quirk matters: while a capture is held for a buyer complaint, the order lists the seller's net amount as a PENDING refund. That entry is the hold, not money returned to the buyer, so the code does not count it against the refundable amount (see `counted_refunds` in `cases/paypal_record.py`). Completed refunds always count.
 
 Inspect payment facts without approving an action or changing the database:
 
@@ -117,7 +117,7 @@ Inspect payment facts without approving an action or changing the database:
 uv run python manage.py inspect_paypal 7 8 --save
 ```
 
-Replace the case IDs with those in your own database. The command reads each dispute, capture, order and individual refund, prints a summary, and saves the response bodies under gitignored `data/paypal_checks/`. It never calls a money-moving endpoint. Add `--cached` to inspect the stored snapshots without contacting PayPal. Do not discard pending refunds or change the refundable limit merely to obtain the expected demo recommendation.
+Replace the case IDs with those in your own database. The command reads each dispute, capture, order and individual refund, prints a summary, and saves the response bodies under gitignored `data/paypal_checks/`. It never calls a money-moving endpoint. Add `--cached` to inspect the stored snapshots without contacting PayPal.
 
 ## PayPal integration
 
